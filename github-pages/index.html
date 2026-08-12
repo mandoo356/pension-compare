@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="금융감독원 공시 데이터로 연금저축과 퇴직연금의 수익률·수수료를 차트로 비교하고 세액공제를 계산합니다." />
+  <meta property="og:title" content="연금한눈 | 연금 비교 분석" />
+  <meta property="og:description" content="수익률·수수료 차트, 1:1 심층비교, 세액공제 계산기를 한곳에서." />
+  <title>연금한눈 | 연금 비교 분석</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#savings" data-view-link="savings"><span class="brand-symbol">P</span><span>연금한눈</span></a>
+    <nav class="desktop-nav" aria-label="주요 메뉴">
+      <button class="nav-link active" data-view-link="savings">연금저축</button>
+      <button class="nav-link" data-view-link="retirement">퇴직연금</button>
+      <button class="nav-link" data-view-link="compare">1:1 심층비교</button>
+      <button class="nav-link" data-view-link="tax">세액공제 계산기</button>
+    </nav>
+    <div class="live-badge"><span></span> FSS DATA</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">PENSION DATA, CLEARLY.</p>
+        <h1>복잡한 연금,<br><em>차트로 한눈에.</em></h1>
+        <p>금융감독원 비교공시를 수익률과 비용 중심으로 다시 읽습니다. 순위만 보지 말고 기간과 비용을 함께 비교하세요.</p>
+        <div class="hero-actions">
+          <button class="primary" data-view-link="compare">두 상품 바로 비교</button>
+          <button class="secondary" data-view-link="tax">예상 세액공제 계산</button>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="수익률과 수수료 비교 예시">
+        <div class="visual-head"><span>성과 분석</span><strong id="hero-period">공시 데이터 로딩</strong></div>
+        <div class="mini-chart">
+          <div><i style="--h:76%"></i><span>수익률</span></div>
+          <div><i style="--h:42%"></i><span>비용</span></div>
+          <div><i style="--h:61%"></i><span>장기</span></div>
+          <div><i style="--h:88%"></i><span>효율</span></div>
+        </div>
+        <div class="visual-score"><span>비교 가능 항목</span><strong>3 · 5 · 10년</strong></div>
+      </div>
+    </section>
+
+    <section class="data-strip" aria-label="데이터 요약">
+      <div><span>연금저축 상품</span><strong id="count-savings">—</strong></div>
+      <div><span>퇴직연금 사업자</span><strong id="count-retirement">—</strong></div>
+      <div><span>공시 기준</span><strong id="period-summary">—</strong></div>
+      <div><span>최근 동기화</span><strong id="updated-summary">—</strong></div>
+    </section>
+
+    <div id="loading" class="loading"><span></span><p>금융감독원 공시 데이터를 읽고 있습니다.</p></div>
+    <div id="error" class="error-state" hidden><strong>데이터를 불러오지 못했습니다.</strong><p>잠시 후 다시 시도해 주세요.</p></div>
+
+    <section id="view-savings" class="view-panel active" data-view="savings">
+      <div class="section-heading">
+        <div><p class="kicker">PENSION SAVINGS</p><h2>연금저축 분석</h2><p>상품별 장기 수익률과 평균 수수료율을 비교합니다.</p></div>
+        <span class="section-number">01</span>
+      </div>
+      <div class="control-bar">
+        <label>금융권역<select id="savings-area"><option value="전체">전체</option></select></label>
+        <label>비교 기간<select id="savings-period"><option value="3">3년</option><option value="5">5년</option><option value="10">10년</option></select></label>
+        <label>차트 기준<select id="savings-metric"><option value="return">수익률 높은 순</option><option value="fee">수수료 낮은 순</option><option value="reserve">적립금 큰 순</option></select></label>
+        <label class="search-field">검색<input id="savings-search" placeholder="회사명 또는 상품명" /></label>
+      </div>
+      <div class="insight-grid">
+        <article class="metric-card blue"><span>상위 상품 수익률</span><strong id="savings-best">—</strong><p id="savings-best-name">—</p></article>
+        <article class="metric-card"><span>조회 상품 평균</span><strong id="savings-average">—</strong><p>선택 기간 단순 평균</p></article>
+        <article class="metric-card"><span>최저 수수료율</span><strong id="savings-low-fee">—</strong><p id="savings-low-fee-name">—</p></article>
+      </div>
+      <div class="analytics-grid">
+        <article class="chart-card span-7"><div class="card-title"><div><span>TOP PERFORMANCE</span><h3>상위 상품 수익률</h3></div><p>선택 기간 기준</p></div><div id="savings-bars" class="bar-chart"></div></article>
+        <article class="chart-card span-5"><div class="card-title"><div><span>RETURN × FEE</span><h3>수익률·수수료 분포</h3></div><p>좌상단일수록 효율적</p></div><div id="savings-scatter" class="scatter-chart"><div class="axis axis-y">수익률 ↑</div><div class="axis axis-x">수수료 →</div></div></article>
+      </div>
+      <article class="table-card"><div class="card-title"><div><span>DETAILS</span><h3>연금저축 상세 공시</h3></div><p id="savings-result-count">—</p></div><div class="table-wrap"><table><thead><tr><th>순위</th><th>회사 / 상품</th><th>권역</th><th>3년</th><th>5년</th><th>10년</th><th>수수료율</th><th>적립금</th></tr></thead><tbody id="savings-table"></tbody></table></div></article>
+    </section>
+
+    <section id="view-retirement" class="view-panel" data-view="retirement">
+      <div class="section-heading">
+        <div><p class="kicker">RETIREMENT PENSION</p><h2>퇴직연금 분석</h2><p>DB·DC·개인형 IRP를 분리해 사업자별 장기 성과와 총비용을 비교합니다.</p></div>
+        <span class="section-number">02</span>
+      </div>
+      <div class="scheme-tabs" role="tablist"><button class="active" data-scheme="irp">개인형 IRP</button><button data-scheme="dc">DC형</button><button data-scheme="db">DB형</button></div>
+      <div class="control-bar">
+        <label>금융권역<select id="retirement-area"><option value="전체">전체</option></select></label>
+        <label>비교 기간<select id="retirement-period"><option value="3">3년</option><option value="5">5년</option><option value="10">10년</option></select></label>
+        <label>차트 기준<select id="retirement-metric"><option value="return">수익률 높은 순</option><option value="fee">비용 낮은 순</option><option value="reserve">적립금 큰 순</option></select></label>
+        <label class="search-field">검색<input id="retirement-search" placeholder="퇴직연금 사업자명" /></label>
+      </div>
+      <div class="insight-grid">
+        <article class="metric-card blue"><span>상위 사업자 수익률</span><strong id="retirement-best">—</strong><p id="retirement-best-name">—</p></article>
+        <article class="metric-card"><span>사업자 평균</span><strong id="retirement-average">—</strong><p>선택 제도·기간 기준</p></article>
+        <article class="metric-card"><span>최저 총비용부담률</span><strong id="retirement-low-fee">—</strong><p id="retirement-low-fee-name">—</p></article>
+      </div>
+      <div class="analytics-grid">
+        <article class="chart-card span-7"><div class="card-title"><div><span>BUSINESS OPERATOR</span><h3>사업자별 장기 수익률</h3></div><p id="retirement-chart-caption">개인형 IRP</p></div><div id="retirement-bars" class="bar-chart"></div></article>
+        <article class="chart-card span-5"><div class="card-title"><div><span>EFFICIENCY MAP</span><h3>수익률·비용 효율 지도</h3></div><p>좌상단일수록 효율적</p></div><div id="retirement-scatter" class="scatter-chart"><div class="axis axis-y">수익률 ↑</div><div class="axis axis-x">비용 →</div></div></article>
+      </div>
+      <article class="table-card"><div class="card-title"><div><span>DETAILS</span><h3>퇴직연금 사업자 상세 공시</h3></div><p id="retirement-result-count">—</p></div><div class="table-wrap"><table><thead><tr><th>순위</th><th>사업자</th><th>권역</th><th>3년</th><th>5년</th><th>10년</th><th>총비용</th><th>적립금</th></tr></thead><tbody id="retirement-table"></tbody></table></div></article>
+    </section>
+
+    <section id="view-compare" class="view-panel" data-view="compare">
+      <div class="section-heading">
+        <div><p class="kicker">SIDE BY SIDE</p><h2>1:1 심층비교</h2><p>두 상품 또는 두 사업자를 같은 기준으로 나란히 비교합니다.</p></div>
+        <span class="section-number">03</span>
+      </div>
+      <div class="compare-type"><button class="active" data-compare-type="savings">연금저축 비교</button><button data-compare-type="retirement">퇴직연금 비교</button></div>
+      <div id="compare-scheme-wrap" class="compare-scheme" hidden><label>퇴직연금 제도<select id="compare-scheme"><option value="irp">개인형 IRP</option><option value="dc">DC형</option><option value="db">DB형</option></select></label></div>
+      <div class="compare-selectors">
+        <label><span>비교 A</span><select id="compare-a"></select></label><div class="versus">VS</div><label><span>비교 B</span><select id="compare-b"></select></label>
+      </div>
+      <div id="compare-cards" class="compare-cards"></div>
+      <article class="chart-card compare-chart-card"><div class="card-title"><div><span>GAP ANALYSIS</span><h3>핵심 지표 차이</h3></div><p>막대가 길수록 해당 지표가 큽니다</p></div><div id="compare-bars" class="comparison-bars"></div></article>
+      <div class="compare-note"><strong>읽는 법</strong><p>수익률은 높을수록, 수수료·총비용은 낮을수록 유리합니다. 과거 수익률이 미래 수익을 보장하지 않으며 상품 구조와 위험등급을 함께 확인해야 합니다.</p></div>
+    </section>
+
+    <section id="view-tax" class="view-panel" data-view="tax">
+      <div class="section-heading">
+        <div><p class="kicker">TAX CREDIT</p><h2>세액공제 계산기</h2><p>2026년 시행 소득세법 기준으로 예상 연금계좌 세액공제를 계산합니다.</p></div>
+        <span class="section-number">04</span>
+      </div>
+      <div class="tax-layout">
+        <div class="calculator-card">
+          <label>소득 유형<select id="income-type"><option value="salary">근로소득자</option><option value="general">종합소득자</option></select></label>
+          <label><span id="income-label">총급여액</span><div class="input-with-unit"><input id="income" type="number" min="0" step="100" value="5000" /><span>만원</span></div></label>
+          <label>연금저축 연간 납입액<div class="input-with-unit"><input id="saving-contribution" type="number" min="0" step="10" value="600" /><span>만원</span></div></label>
+          <label>퇴직연금(IRP·DC 개인부담) 납입액<div class="input-with-unit"><input id="irp-contribution" type="number" min="0" step="10" value="300" /><span>만원</span></div></label>
+          <div class="tax-rule"><span>공제한도</span><strong>연금저축 600만원 · 합산 900만원</strong></div>
+        </div>
+        <div class="tax-result">
+          <p>예상 세액공제</p><strong id="tax-credit">—</strong><span id="tax-rate">—</span>
+          <div class="tax-breakdown"><div><span>공제 대상 납입액</span><strong id="eligible-contribution">—</strong></div><div><span>한도 초과 납입액</span><strong id="excess-contribution">—</strong></div></div>
+          <div class="tax-progress"><div id="tax-progress-bar"></div></div><p id="tax-guide" class="tax-guide">—</p>
+        </div>
+      </div>
+      <div class="tax-explain">
+        <article><span>01</span><h3>공제율</h3><p>근로소득 총급여 5,500만원 이하 또는 종합소득금액 4,500만원 이하는 지방소득세 포함 16.5%, 초과 시 13.2%로 추정합니다.</p></article>
+        <article><span>02</span><h3>납입 한도</h3><p>연금저축은 연 600만원, 연금저축과 퇴직연금을 합쳐 연 900만원까지 세액공제 대상입니다.</p></article>
+        <article><span>03</span><h3>주의사항</h3><p>실제 공제액은 결정세액과 다른 공제 항목에 따라 달라질 수 있습니다. 계산 결과는 참고용입니다.</p></article>
+      </div>
+      <a class="law-link" href="https://www.law.go.kr/lsLawLinkInfo.do?chrClsCd=010202&lsJoLnkSeq=900470390" target="_blank" rel="noreferrer">소득세법 제59조의3 확인하기 →</a>
+    </section>
+  </main>
+
+  <nav class="mobile-nav" aria-label="모바일 메뉴"><button class="active" data-view-link="savings">연금저축</button><button data-view-link="retirement">퇴직연금</button><button data-view-link="compare">1:1 비교</button><button data-view-link="tax">세액계산</button></nav>
+  <footer><div><strong>연금한눈</strong><span>FSS Pension Data Visualizer</span></div><p>금융감독원 통합연금포털 Open API 기반 · 정보 제공 목적이며 투자 권유가 아닙니다.</p><a href="https://www.fss.or.kr/fss/lifeplan/lifeplanIndex/index.do?menuNo=201101" target="_blank" rel="noreferrer">공식 통합연금포털 ↗</a></footer>
+  <script src="./app.js" defer></script>
+</body>
+</html>

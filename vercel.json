@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "echo Static pension app ready",
+  "outputDirectory": "github-pages",
+  "cleanUrls": true
+}

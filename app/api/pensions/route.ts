@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 const API = "https://www.fss.or.kr/openapi/api";
-const AREAS = [1, 2, 3, 4];
+const AREAS = [1, 3, 4, 5];
 
 type ApiResponse<T> = { code: string; message: string; list?: T[] };
 type RawSavings = Record<string, string | number>;
